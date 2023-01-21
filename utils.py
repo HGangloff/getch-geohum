@@ -36,23 +36,27 @@ def parse_args():
     parser.add_argument("--force_cpu", dest='force_cpu', action='store_true')
     parser.add_argument("--dst_dir", type=str, default=os.getcwd())
     parser.add_argument("--data_dir", type=str, default="/home/getch/DATA/VAE/data",required=False)
-    parser.add_argument("ndvi", action='store_true', default=False)
-    parser.add_argument("anomaly", help='anomaly score map approach, could be either of "ssim" or "ssim_mad" ', type=str, default='ssim')
-    parser.add_argument("blur", help='Whether to blur an image, either of  "yes" or "no" ', type=str, default='yes')
-    parser.add_argument("scale", help='Scale factor to downscale the image to coarser resolution', type=int, default=16)
+    parser.add_argument("--ndvi", dest="ndvi", action='store_true', default=False)
+    parser.set_defaults(ndvi=False)
+    parser.add_argument("--anomaly", help='anomaly score map approach, could be either of "ssim" or "ssim_mad" ', type=str, default='ssim')
+    parser.add_argument("--blur", dest='blur', help='Whether to blur an image',
+        default=False, action='store_true')
+    parser.set_defaults(blur=False)
+    parser.add_argument("--scale", help='Scale factor to downscale the image to coarser resolution', type=int, default=16)
     
     parser.set_defaults(force_train=False)
 
     return parser.parse_args()
 
-def load_vqvae(args):
+def load_vae(args):
     
-        model = VAE(latent_img_size=args.latent_img_size,
-                z_dim=args.z_dim,
-                img_size=args.img_size,
-                nb_channels=args.nb_channels,
-                beta=args.beta,
-            )
+    model = VAE(
+        latent_img_size=args.latent_img_size,
+        z_dim=args.z_dim,
+        img_size=args.img_size,
+        nb_channels=args.nb_channels,
+        beta=args.beta,
+    )
 
     return model
 
@@ -73,31 +77,40 @@ def load_model_parameters(model, file_name, dir1, dir2, device):
 
     return model
 
-def get_train_dataloader(args, fake_dataset_size=None):
+def get_train_dataloader(args):
     if args.dataset == "panoptics":
         train_dataset = PanopticsTrainDataset(
             args.category,
             args.img_size,
-            fake_dataset_size=1024 if fake_dataset_size is None else
-                fake_dataset_size,
         )
     else:
         raise RuntimeError("No / Wrong dataset provided")
 
-    train_dataloader = DataLoader(train_dataset, batch_size=args.batch_size,
-        shuffle=False if args.dataset == "ssl_vqvae" else True)
+    train_dataloader = DataLoader(
+        train_dataset,
+        batch_size=args.batch_size,
+        shuffle=False if args.dataset == "ssl_vqvae" else True,
+        num_workers=12
+    )
 
     return train_dataloader, train_dataset
 
-def get_test_dataloader(args, fake_dataset_size=30, with_loc=False, categ='all'): # categ=None is added
+def get_test_dataloader(args, with_loc=False, categ='all',
+    fake_dataset_size=None): # categ=None is added
     if args.dataset == "panoptics":
-        test_dataset = PanopticsTestDataset(args.img_size,
-                fake_dataset_size=512 if fake_dataset_size is None else
-                fake_dataset_size, category=categ)
+        test_dataset = PanopticsTestDataset(
+            args.img_size,
+            category=categ,
+            fake_dataset_size=fake_dataset_size
+        )
     else:
         raise RuntimeError("No / Wrong dataset provided")
 
-    test_dataloader = DataLoader(test_dataset, batch_size=args.batch_size_test)
+    test_dataloader = DataLoader(
+        test_dataset,
+        batch_size=args.batch_size_test,
+        num_workers=12
+    )
 
     return test_dataloader, test_dataset
 

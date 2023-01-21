@@ -11,13 +11,13 @@ import matplotlib
 matplotlib.use('Agg')
 
 from utils import (get_train_dataloader,
-        get_test_dataloader,
+                   get_test_dataloader,
                    load_model_parameters,
-                   load_vqvae,
+                   load_vae,
                    update_loss_dict,
                    print_loss_logs,
                    parse_args
-                   ) # get_test_dataloader
+                   )
 
 import sys
 
@@ -31,7 +31,7 @@ def train(model, train_loader, device, optimizer, epoch):
         print(batch_idx + 1, end=", ", flush=True)
         input_mb = input_mb.to(device) 
         lbl = lbl.to(device) 
-        optimizer.zero_grad() # otherwise grads accumulate in backward
+        optimizer.zero_grad()
 
         loss, recon_mb, loss_dict_new = model.step(
             input_mb
@@ -49,7 +49,7 @@ def train(model, train_loader, device, optimizer, epoch):
 
 def eval(model, test_loader, device):
     model.eval()
-    input_mb, gt_mb = iter(test_loader).next()
+    input_mb, gt_mb, _ = iter(test_loader).next()
     gt_mb = gt_mb.to(device)
     input_mb = input_mb.to(device)
     recon_mb, opt_out = model(input_mb)
@@ -69,7 +69,7 @@ def main(args):
         torch.cuda.manual_seed(seed)
     np.random.seed(seed)
 
-    model = load_vqvae(args)
+    model = load_vae(args)
     model.to(device)
 
     train_dataloader, train_dataset = get_train_dataloader(args)
@@ -128,7 +128,7 @@ def main(args):
             print_loss_logs(f_name, out_dir, loss_dict, epoch, args.exp)
                     
             # save model parameters
-            if (epoch + 1) % 100 == 0 or epoch in [0, 4, 9, 24]:
+            if (epoch + 1) % 100 == 0 or epoch in [0, 4, 9, 24, 49]:
                 # to resume a training optimizer state dict and epoch
                 # should also be saved
                 torch.save(model.state_dict(), os.path.join(

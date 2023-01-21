@@ -13,7 +13,7 @@ matplotlib.use('Agg')
 from utils import (get_train_dataloader,
                    get_test_dataloader,
                    load_model_parameters,
-                   load_vqvae,
+                   load_vae,
                    parse_args
                    )
 
@@ -75,46 +75,44 @@ def test(args):
     np.random.seed(seed)
 
     checkpoints_dir =f'{args.dst_dir}/{args.category}/torch_checkpoints'  # "./torch_checkpoints" # '{args.dst_dir}/{args.category}/torch_checkpoints' needs change
-    print(f'MY dir : {checkpoints_dir}')
-    if not os.path.isdir(checkpoints_dir):
-        os.mkdir(checkpoints_dir)
     checkpoints_saved_dir =f'{args.dst_dir}/{args.category}/torch_checkpoints_saved' # "./torch_checkpoints_saved"  # need change
 
-    #predictions_dir =f"{args.dst_dir}/{args.category}/" + args.dataset + "_predictions"   # need change
-    #if not os.path.isdir(predictions_dir):
-     #   os.mkdir(predictions_dir)
-
-    # Load dataset
-    #train_dataloader, train_dataset = get_train_dataloader(
-     #   args,
-      #  fake_dataset_size=256,
-    #)
     # NOTE force test batch size to be 1
+    # NOTE could we process batch of images ?
     args.batch_size_test = 1
-    # fake_dataset_size=None leads a test on all the test dataseti
-    auc_file = f"{args.dst_dir}/predictions_blur_{args.blurr}_{args.scale}_{args.anomaly}/AUC_{args.anomaly}_ssmsummary.txt"
+
+    fake_dataset_size=None # means that we process of the dataset, otherwise a
+    # integer restricts its size
+    auc_file = f"{args.dst_dir}/predictions_blur_{args.blur}_{args.scale}_{args.anomaly}/AUC_{args.anomaly}_ssmsummary.txt"
     if args.category == 'all':
         categories = sorted(os.listdir(args.data_dir))
         print(f'Got {len(categories)} folders: \n {categories}')
         for j in range(len(categories)):
             print(f'processing for {categories[j]}')
-            predictions_dir =f"{args.dst_dir}/predictions_blur_{args.blurr}_{args.scale}_{args.anomaly}/{categories[j]}"   # need change
+            predictions_dir =f"{args.dst_dir}/predictions_blur_{args.blur}_{args.scale}_{args.anomaly}/{categories[j]}"   # need change
             if not os.path.exists(predictions_dir):
                 os.makedirs(predictions_dir, exist_ok=True)
 
             test_dataloader, test_dataset = get_test_dataloader(
                     args,
-                    fake_dataset_size=None,
                     with_loc=True,
-                    categ=categories[j]) # ceteg is added in test loader
+                    categ=categories[j],
+                    fake_dataset_size=fake_dataset_size
+                )
 
             # Load model
-            model = load_vqvae(args)
+            model = load_vae(args)
             model.to(device)
 
             try:
                 file_name = f"{args.exp}_{args.params_id}.pth"
-                model = load_model_parameters(model, file_name, checkpoints_dir,checkpoints_saved_dir, device)
+                model = load_model_parameters(
+                    model,
+                    file_name,
+                    checkpoints_dir,
+                    checkpoints_saved_dir, 
+                    device
+                )
             except FileNotFoundError:
                 raise RuntimeError("The model checkpoint does not exist !")
 
@@ -132,8 +130,8 @@ def test(args):
                 imgs_blur = imgs_blur.to(device) # changed
 
                 gt_np = gt[0].cpu().numpy().astype(float)#[..., 0]
-                print('Ground truth shape', gt_np.shape)
-                print('Ground truth dtype', gt_np.dtype)
+                #print('Ground truth shape', gt_np.shape)
+                #print('Ground truth dtype', gt_np.dtype)
                 #gt_np = (gt_np - np.amin(gt_np)) / (np.amax(gt_np) - np.amin(gt_np))
 
                 x_rec, _ = model(imgs_blur) # changed from imgs
@@ -143,26 +141,11 @@ def test(args):
 
                 ssim_map = ((ssim_map - np.amin(ssim_map)) / (np.amax(ssim_map) - np.amin(ssim_map)))
 
-                mad = torch.mean(torch.abs(model.mu - torch.mean(model.mu,dim=(0,1))), dim=(0,1))
-
-                mad = mad.detach().cpu().numpy()
-
-                mad = ((mad - np.amin(mad)) / (np.amax(mad) - np.amin(mad)))
-
-                mad = mad.repeat(8, axis=0).repeat(8, axis=1)
-
-                # MAD metric
-                #amaps = mad
-
                 # SM metric
                 amaps = ssim_map
 
-                # MAD*SM metric
-                if args.anomaly == 'ssim_mad':
-                    amaps = mad * ssim_map
-
                 amaps = ((amaps - np.amin(amaps)) / (np.amax(amaps) - np.amin(amaps)))
-                print(f'== Shape of amaps: {amaps.shape}==')
+                #print(f'== Shape of amaps: {amaps.shape}==')
 
                 if args.dataset in ["panoptics"]:
                     preds = amaps.copy() 
@@ -185,7 +168,7 @@ def test(args):
                 #gt = gt[0].permute(1, 2, 0).cpu().numpy()
                 rec = x_rec[0].detach().permute(1, 2, 0).cpu().numpy()
                 rec = rec[..., :3] # NOTE 4 bands panoptics
-                path_to_save = f'{args.dst_dir}/predictions_blur_{args.blurr}_{args.scale}_{args.anomaly}/{categories[j]}/'  # needs reshafling
+                path_to_save = f'{args.dst_dir}/predictions_blur_{args.blur}_{args.scale}_{args.anomaly}/{categories[j]}/'  # needs reshafling
 
                 if args.ndvi:
                     np.save(path_to_save + '{}_ndvi.npy'.format(str(ii)),ndvi) # added 

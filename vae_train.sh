@@ -5,7 +5,7 @@ python3 vae_train.py\
     --dataset=panoptics\
     --category=all\
     --num_epochs=1000\
-    --lr=1e-3\
+    --lr=1e-4\
     --img_size=256\
     --batch_size=16\
     --batch_size_test=8\
@@ -14,10 +14,10 @@ python3 vae_train.py\
     --beta=0.1\
     --nb_channels=4\
     --force_train\
-    --dst_dir=/path_to_output_folder\
+    --dst_dir=output_folder\
     --anomaly=ssim\
-    --blur=yes\
     --scale=16\
+    --blur\
     #--category=Deghale_Apr_2017\
     #--category=Kule_tirkidi_jun_2018\
     #--category=Kule_tirkidi_marc_2017\

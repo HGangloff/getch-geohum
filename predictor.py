@@ -1,4 +1,5 @@
 import os
+import argparse
 import matplotlib.pyplot as plt
 from skimage.io import imread
 import numpy as np
@@ -58,7 +59,16 @@ def countObjects(mask, remove_small=True, min_size=4):
         return ret-1 # subtracting 1 is mainly to remove bakground object
 
     
-def computeMetricsAll(refs, preds, binary='max', save=True, save_name=None, save_mask=True, im_path=None, rep_path=None):
+def computeMetricsAll(
+    refs,
+    preds,
+    binary='max',
+    save=True,
+    save_name=None,
+    save_mask=True,
+    im_path=None,
+    rep_path=None
+):
     assert len(preds) == len(refs)
     IOU = []
     P = []
@@ -119,10 +129,12 @@ if __name__ == "__main__":
     args = parseArgs()
     
     if not os.path.exists(args.rep_fold):
-        os.makedirs(rep_fold, exist_ok=True)
+        os.makedirs(args.rep_fold, exist_ok=True)
     
     met_dict = {}
     for fold in os.listdir(args.data_fold):
+        if os.path.isfile(f"{args.data_fold}/{fold}"): # avoid the AUC report
+            continue
         print(f'Processing for {fold} ...')
         data_fold = f'{args.data_fold}/{fold}'
         image_fold = f'{args.mask_fold}/{fold}'
@@ -134,7 +146,16 @@ if __name__ == "__main__":
         gts = sorted([a for a in pngs if 'gt' in a])
         scor = sorted([a for a in pngs if 'amap.png' in a])
         assert len(ori) == len(gts) == len(scor)
-        im_mtertic = computeMetricsAll(refs=gts, preds=scor, binary=binary, save=True, save_name=fold, save_mask=True, im_path=image_fold, rep_path=rep_fold)
+        im_mtertic = computeMetricsAll(
+            refs=gts,
+            preds=scor,
+            binary=args.binary,
+            save=True,
+            save_name=fold,
+            save_mask=True,
+            im_path=image_fold, 
+            rep_path=args.rep_fold
+        )
         met_dict[fold] = im_mtertic
     df = pd.DataFrame.from_dict(met_dict)
-    df.to_csv(f'{rep_fold}/all_metric_{binary}.csv')
+    df.to_csv(f'{args.rep_fold}/all_metric_{args.binary}.csv')

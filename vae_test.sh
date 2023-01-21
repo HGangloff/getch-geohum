@@ -4,8 +4,8 @@ python3 vae_test.py\
     --exp=vae_vae\
     --dataset=panoptics\
     --category=all\
-    --num_epochs=1000\
-    --lr=1e-3\
+    --num_epochs=50\
+    --lr=1e-4\
     --img_size=256\
     --batch_size=16\
     --batch_size_test=8\
@@ -13,11 +13,12 @@ python3 vae_test.py\
     --z_dim=256\
     --beta=0.1\
     --nb_channels=4\
-    --params_id=1000\
-    --dst_dir=/path_2_out_put_folder\
-    --data_dir=/path_2_data_folder\
+    --params_id=25\
+    --dst_dir=./output_folder\
+    --data_dir=../data\
     --anomaly=ssim\
-    --blur=yes\
+    --blur\
+    --ndvi\
     --scale=16\
     #--category=Deghale_Apr_2017\
     #--category=Kule_tirkidi_jun_2018\
