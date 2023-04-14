@@ -13,12 +13,6 @@ import matplotlib
 
 DEFAULT_PANOPTICS_DIR = "D:/DATA/rawdata/camp"
 
-def toLong(x):
-    return x.long()
-
-def toFloat(x):
-    return x.float()
-
 class PanopticsTrainDataset(Dataset):
     def __init__(
         self,
@@ -75,11 +69,10 @@ class PanopticsTrainDataset(Dataset):
         #self.gt_files = [s.replace("images", "labels") for s in self.img_files]
         self.transform = transforms.Compose([
             transforms.ToTensor(),
-            transforms.Lambda(toFloat)
          #   transforms.ToPILImage(),
          #   transforms.Resize(size=(img_size, img_size)),
          #   transforms.PILToTensor(),
-         #   itransforms.Lambda(lambda img: img.float())
+            transforms.Lambda(lambda img: img.float())
         ]) 
         self.nb_img = len(self.img_files)
 
@@ -164,14 +157,13 @@ class PanopticsTestDataset(Dataset):
         self.gt_files = [s.replace("images", "labels") for s in self.img_files]
         self.transform = transforms.Compose([
             transforms.ToTensor(),
-            transforms.Lambda(toFloat)
             #transforms.Resize(size=(img_size, img_size)),
             #transforms.PILToTensor(),
-            #transforms.Lambda(lambda img: img.float())
+            transforms.Lambda(lambda img: img.float())
         ]) 
         self.transform_gt = transforms.Compose([
             transforms.ToTensor(),
-            transforms.Lambda(toLong)
+            transforms.Lambda(lambda img: img.long())
         ]) 
         self.nb_img = len(self.img_files)
 

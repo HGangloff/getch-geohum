@@ -132,36 +132,38 @@ def test(args):
             imgs = imgs.to(device)
             imgs_blur = imgs_blur.to(device) # changed
 
-            gt_np = gt[0].cpu().numpy().astype(float) #[..., 0]
+            gt_np = gt[0].cpu().numpy().astype(float)#[..., 0]
             #print('Ground truth shape', gt_np.shape)
             #print('Ground truth dtype', gt_np.dtype)
             #gt_np = (gt_np - np.amin(gt_np)) / (np.amax(gt_np) - np.amin(gt_np))
 
             ##########################################################
             if args.liu_vae:
+                conv_layers = ['conv_1']#, 'conv_2', 'conv_3', 'conv_4']
                 anomaly_maps = []
-                for c in args.conv_layers:
-                    M, x_rec = liu_anomaly_map(c, model, imgs, device)
+                for c in conv_layers:
+                    M, x_rec = liu_anomaly_map(c, model, imgs)
                     anomaly_maps.append(M)
+
                 amaps = np.squeeze(anomaly_maps[0].cpu().numpy())
                 pred_score = [np.amax(anomaly_maps[0].cpu().numpy())]
                 mask = (amaps > 0.1).astype(np.int8)
-                #### saving function for anomaly attention maps and mask generated from it
 
             ##########################################################
-            else:
-                x_rec, _ = model(imgs_blur) # changed from imgs
-                x_rec = model.mean_from_lambda(x_rec)
 
-                score, ssim_map = dissimilarity_func(x_rec[0],imgs[0], 11)  # later change this to imgs
 
-                ssim_map = ((ssim_map - np.amin(ssim_map)) / (np.amax(ssim_map) - np.amin(ssim_map)))
+            x_rec, _ = model(imgs_blur) # changed from imgs
+            x_rec = model.mean_from_lambda(x_rec)
 
-                # SM metric
-                amaps = ssim_map
+            score, ssim_map = dissimilarity_func(x_rec[0],imgs[0], 11)  # later change this to imgs
 
-                amaps = ((amaps - np.amin(amaps)) / (np.amax(amaps) - np.amin(amaps)))
-                #print(f'== Shape of amaps: {amaps.shape}==')
+            ssim_map = ((ssim_map - np.amin(ssim_map)) / (np.amax(ssim_map) - np.amin(ssim_map)))
+
+            # SM metric
+            amaps = ssim_map
+
+            amaps = ((amaps - np.amin(amaps)) / (np.amax(amaps) - np.amin(amaps)))
+            #print(f'== Shape of amaps: {amaps.shape}==')
 
             if args.dataset in ["panoptics"]:
                 preds = amaps.copy() 

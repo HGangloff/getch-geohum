@@ -7,7 +7,6 @@ from datasets import *
 from vae import VAE
 from liu_vae import VAE_LIU
 import time
-import re
 import argparse
 import matplotlib
 matplotlib.use('Agg')
@@ -52,7 +51,7 @@ def parse_args():
     parser.set_defaults(disc_module=False)  # conv_layers
     
     
-    parser.add_argument('--conv_layers', type=lambda s: re.split(',', s), help='list of convlayers for liu_vae implementation attanetion map generation', required=False, default="conv_1,conv_2,conv_3,conv4")
+    parser.add_argument('--conv_layers', type=lambda s: re.split(',', s), help='list of convlayers for liu_vae implementation attanetion map generation', required=False, default="conv_1,conv_2")
 
 
     return parser.parse_args()
@@ -74,8 +73,7 @@ def load_vae(args):
             beta=args.beta,
             delta=args.delta,
             liu_vae=args.liu_vae,
-            disc_module=args.disc_module)
-        print('Liu et al anomaly attention based VAE model initiated')
+            disc_module=False)
 
     return model
 

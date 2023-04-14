@@ -1,10 +1,10 @@
 #!/bin/bash
 
-python vae_test.py\
+python3 vae_train.py\
     --exp=vae_vae\
     --dataset=panoptics\
     --category=Minawao_june_2016\
-    --num_epochs=50\
+    --num_epochs=1000\
     --lr=1e-4\
     --img_size=256\
     --batch_size=16\
@@ -12,17 +12,21 @@ python vae_test.py\
     --latent_img_size=32\
     --z_dim=256\
     --beta=0.1\
+    --delta=1.0\
     --nb_channels=4\
-    --params_id=100\
-    --dst_dir=D:/ANOMALY_liu\
+    --force_train\
+    --dst_dir=D:/ANOMALY\
     --anomaly=ssim\
-    --blur\
-    --ndvi\
     --scale=16\
-    --liu_vae\
+    --blur\
+    
+    #--liu_vae\
+    #--disc_module\
+    #--conv_layers="conv_1,conv_2,conv_3"\
+    
     #--category=Deghale_Apr_2017\
     #--category=Kule_tirkidi_jun_2018\
-    #--category=Kule_tirkidi_marc_2016\
+    #--category=Kule_tirkidi_marc_2017\
     #--category=Kutuplong_dec_2017\
     #--category=Minawao_feb_2017\
     #--category=Minawao_june_2016\

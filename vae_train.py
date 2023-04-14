@@ -49,7 +49,7 @@ def train(model, train_loader, device, optimizer, epoch):
 
 def eval(model, test_loader, device):
     model.eval()
-    input_mb, gt_mb, _ = iter(test_loader).next()
+    input_mb, gt_mb, _ = next(iter(test_loader)) # .next()
     gt_mb = gt_mb.to(device)
     input_mb = input_mb.to(device)
     recon_mb, opt_out = model(input_mb)
