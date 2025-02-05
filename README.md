@@ -1,5 +1,1 @@
-# Getch-Geohum
-
-__VARIATIONAL AUTOENCODERS FOR UNSUPERVISED OBJECT COUNTING FROM VHR IMAGERY:
-APPLICATIONS IN DWELLING EXTRACTION FROM IDP/REFUGEE SETTLEMENTS__
-
+This repo is an implementation code for a conference paper [Variational Autoencoders for Unsupervised Object Counting from VHR Imagery: Applications in Dwelling Extraction from Forcibly Displaced People Settlement Areas](https://doi.org/10.1109/TGRS.2023.3345179). 
