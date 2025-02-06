@@ -1,4 +1,4 @@
-This repo is an implementation code for a conference paper [Variational Autoencoders for Unsupervised Object Counting from VHR Imagery: Applications in Dwelling Extraction from Forcibly Displaced People Settlement Areas](https://doi.org/10.1109/TGRS.2023.3345179). The experiment used multisource, multi-site very high-resolution satellite imagery obtained from different geographies hosting forcibly displaced people. The workflow is indicated in the following figure.
+This repo is an implementation code for a conference paper [Variational Autoencoders for Unsupervised Object Counting from VHR Imagery: Applications in Dwelling Extraction from Forcibly Displaced People Settlement Areas](https://ieeexplore.ieee.org/abstract/document/10281849). The experiment used multisource, multi-site very high-resolution satellite imagery obtained from different geographies hosting forcibly displaced people. The workflow is indicated in the following figure.
 
 ![Workflow](https://github.com/HGangloff/getch-geohum/blob/main/workflow.png)
 
