@@ -6,6 +6,7 @@ This repo is an implementation code for a conference paper [Variational Autoenco
 ## Usage 
 
 ***training***
+
 ```sh ae_train.sh```
 
 ***Testing***
